@@ -1,13 +1,12 @@
 name: Mihomo 分流规则转换版
-desc: 所有分类可自由选择订阅节点或独立直连；保留原有分流规则。
+desc: 使用 Stash 原生空组直连；各分类保留全部节点自由选择。
 # 使用 Stash 覆写语法；需搭配包含代理节点的主配置文件。
 # 注意：规则列表使用 #!replace，会替换订阅原有的路由规则。
 
 proxy-groups: #!replace
+  # Stash: 空策略组将直接作为 DIRECT 使用
   - name: "🟢 直连"
     type: select
-    proxies:
-      - DIRECT
 
   # 默认代理组，直接拉取所有节点
   - name: "🚀 默认代理"
