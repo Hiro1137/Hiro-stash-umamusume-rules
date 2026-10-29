@@ -2,14 +2,12 @@
 [YAML]
 
 proxy-groups!:
-  # 默认代理组
   - name: "🚀 默认代理"
     type: select
     include-all: true
     proxies:
       - "DIRECT"
 
-  # 服务分类组
   - name: "📹 YouTube"
     type: select
     include-all: true
@@ -115,9 +113,7 @@ proxy-groups!:
       - "🚀 默认代理"
       - "DIRECT"
 
-  # ====================================
-  # 新增：WebRTC 防护策略组
-  # ====================================
+  # WebRTC 防护
   - name: "🛡️ WebRTC防护"
     type: select
     proxies:
@@ -126,46 +122,6 @@ proxy-groups!:
       - "DIRECT"
 
 rule-providers!:
-  reject_non_ip_no_drop:
-    type: http
-    behavior: classical
-    format: text
-    interval: 43200
-    url: https://ruleset.skk.moe/Clash/non_ip/reject-no-drop.txt
-    path: ./sukkaw_ruleset/reject_non_ip_no_drop.txt
-
-  reject_non_ip_drop:
-    type: http
-    behavior: classical
-    format: text
-    interval: 43200
-    url: https://ruleset.skk.moe/Clash/non_ip/reject-drop.txt
-    path: ./sukkaw_ruleset/reject_non_ip_drop.txt
-
-  reject_non_ip:
-    type: http
-    behavior: classical
-    format: text
-    interval: 43200
-    url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
-    path: ./sukkaw_ruleset/reject_non_ip.txt
-
-  reject_domainset:
-    type: http
-    behavior: domain
-    format: text
-    interval: 43200
-    url: https://ruleset.skk.moe/Clash/domainset/reject.txt
-    path: ./sukkaw_ruleset/reject_domainset.txt
-
-  reject_extra_domainset:
-    type: http
-    behavior: domain
-    format: text
-    interval: 43200
-    url: https://ruleset.skk.moe/Clash/domainset/reject_extra.txt
-    path: ./sukkaw_ruleset/reject_domainset_extra.txt
-
   private_domain:
     type: http
     interval: 86400
@@ -431,36 +387,22 @@ rule-providers!:
     path: ./rule_provider/apple_ip.mrs
 
 rules!:
-  # 广告与隐私拦截规则
-  - RULE-SET,reject_non_ip_drop,REJECT-DROP
-  - RULE-SET,reject_domainset,REJECT
-  - RULE-SET,reject_extra_domainset,REJECT
-  - RULE-SET,reject_non_ip,REJECT
-  - RULE-SET,reject_non_ip_no_drop,REJECT
-
-  # 原有直连规则
+  # 自定义直连
   - DOMAIN-SUFFIX,download.nvidia.com,DIRECT
   - DOMAIN-SUFFIX,update.playstation.net,DIRECT
   - DOMAIN-SUFFIX,prod.dl.playstation.net,DIRECT
   - GEOSITE,steam@cn,DIRECT
   - DOMAIN-SUFFIX,steamserver.net,DIRECT
 
-  # ====================================
-  # 新增：WebRTC 防护规则
-  # ====================================
-
-  # Zoom / Discord 域名优先处理
-  # 避免这些域名命中后续通用拦截规则
+  # WebRTC：Zoom / Discord 域名例外
   - DOMAIN-SUFFIX,zoom.us,DIRECT
   - DOMAIN-SUFFIX,zoom.com,DIRECT
   - DOMAIN-SUFFIX,discord.com,🚀 默认代理
   - DOMAIN-SUFFIX,discord.gg,🚀 默认代理
 
-  # 常见 STUN / TURN 端口
+  # WebRTC：STUN / TURN 常见端口拦截
   - DST-PORT,3478,🛡️ WebRTC防护
   - DST-PORT,5349,🛡️ WebRTC防护
-
-  # Google STUN 常见端口范围
   - DST-PORT,19302,🛡️ WebRTC防护
   - DST-PORT,19303,🛡️ WebRTC防护
   - DST-PORT,19304,🛡️ WebRTC防护
@@ -470,23 +412,24 @@ rules!:
   - DST-PORT,19308,🛡️ WebRTC防护
   - DST-PORT,19309,🛡️ WebRTC防护
 
-  # STUN 域名拦截
+  # WebRTC：STUN 域名匹配
   - DOMAIN-KEYWORD,stun,🛡️ WebRTC防护
 
-  # ====================================
-  # 以下保留原有分流规则
-  # ====================================
-
+  # Google
   - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,🍀 Google
   - DOMAIN-SUFFIX,googleapis.cn,🍀 Google
   - DOMAIN-SUFFIX,googleapis.com,🍀 Google
+
+  # 局域网直连
   - "RULE-SET,private_ip,DIRECT,no-resolve"
   - "RULE-SET,private_domain,DIRECT"
+
+  # 指定代理域名
   - "DOMAIN-SUFFIX,yycloud.org,🚀 默认代理"
   - "DOMAIN-SUFFIX,yyg.ink,🚀 默认代理"
   - "RULE-SET,proxylite,🚀 默认代理"
 
-  # AI 服务
+  # AI
   - "RULE-SET,ai,🤖 AI"
   - "RULE-SET,ChatGPT_Domain,🤖 AI"
   - "RULE-SET,Claude_Domain,🤖 AI"
@@ -495,7 +438,7 @@ rules!:
   - "RULE-SET,Copilot_Domain,🪟 Microsoft"
   - "RULE-SET,Gemini_Domain,🤖 AI"
 
-  # 各平台与服务
+  # 服务分流
   - "RULE-SET,github_domain,👨🏿‍💻 GitHub"
   - "RULE-SET,youtube_domain,📹 YouTube"
   - "RULE-SET,Disney_Domain,✨ Disney"
@@ -516,12 +459,12 @@ rules!:
   - "RULE-SET,netflix_ip,🎥 NETFLIX"
   - "RULE-SET,telegram_ip,📱 Telegram"
 
-  # 全球与中国规则
+  # 全球及国内规则
   - "RULE-SET,Globe_Domain,🌍 国外网站"
   - "RULE-SET,GateFireWall_Domain,🌍 国外网站"
   - "RULE-SET,geolocation-!cn,🚀 默认代理"
   - "RULE-SET,cn_domain,DIRECT"
   - "RULE-SET,cn_ip,DIRECT"
 
-  # 最终兜底
+  # 兜底
   - "MATCH,🐟 漏网之鱼"
